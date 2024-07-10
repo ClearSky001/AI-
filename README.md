@@ -1,4 +1,4 @@
-## 데이터셋
+## 모델 제작에 사용된 데이터셋
 
 모델 훈련에 사용된 데이터셋은 다음 경로에서 다운로드할 수 있습니다 : https://www.kaggle.com/datasets/sriramr/fruits-fresh-and-rotten-for-classification
 

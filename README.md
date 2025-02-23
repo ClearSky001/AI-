@@ -9,7 +9,7 @@
 
 **성과 요약:**  
 - 2024 한이음 ICT 멘토링 공모전 **입선 수상**  
-- 프로젝트 후속 연구로 **AI 모델 성능 개선** 진행  
+- 프로젝트 후속 연구로 **AI 모델 성능 개선** 진행 **(Test 데이터 성능 25% → 76% 향상) & 데이터 재구성을 통한 모델 일반화 성능 향상**
 - 공모전 보고서 및 자료는 리포지토리의 **'2024_Hanium_ICT_mentoring_competition_and_Paper' 폴더**에서 확인할 수 있습니다.
 
 ---
@@ -48,19 +48,66 @@
 ## 모델 학습에 사용된 이미지 데이터 파일들
 - 한이음 ICT 공모전 당시 제작했던 모델들에 쓰인 데이터
   - [YOLOv5s(링크의 데이터 그대로 사용)](https://www.kaggle.com/datasets/sriramr/fruits-fresh-and-rotten-for-classification)
-  - [EfficintDet-D0](https://drive.google.com/drive/u/2/folders/1AotMBlR4IlhqmpxC5WBf-SbpKsxDilvy)
+  - [EfficientDet-D0](https://drive.google.com/drive/u/2/folders/1AotMBlR4IlhqmpxC5WBf-SbpKsxDilvy)
   - [EfficientNet-B0](https://drive.google.com/drive/u/2/folders/1tXkCgdoUun-kd0XHSJ6oGFw6jI1e00of)
 - 한이음 ICT 공모전 이후 제작한 모델에 쓰인 데이터(**Test 데이터셋의 이미지와 유사하도록 Train, Validation 데이터를 구성**)
   - [EfficientNet-B0](https://drive.google.com/drive/u/2/folders/1Tv1ODKL3YgzKIJprE9YUsFy9Nngy-45G)
  
 ---
 
-## 방법론
+## 방법론 (Model Selection & Data Processing)
+
+본 프로젝트에서는 최적의 모델을 찾기 위해 **3가지 AI 모델(YOLOv5s, EfficientDet-D0, EfficientNet-B0)**을 순차적으로 실험하였습니다.
+
+### 1. 한이음 ICT 공모전 당시 실험한 모델들 (순차적으로 실험 진행)
+- **YOLOv5s**
+  - 과일을 분류하면서 동시에 객체 인식까지 수행하고자 선택  
+  - Kaggle 데이터셋을 활용하여 모델을 학습  
+  - **문제점:** Annotation 파일의 처리가 미흡하여 학습 과정에서는 90% 이상의 성능을 기록했으나, 실제 테스트에서는 물체를 거의 인식하지 못함  
+
+- **EfficientDet-D0**
+  - YOLO 모델 이후에 선택한 모델로, **경량화된 구조와 임베디드 환경에서의 원활한 구동 가능성**을 고려하여 채택  
+  - YOLOv5s에서 사용한 데이터를 수정하여, **이미지 1장당 1개의 과일만 포함되도록 데이터셋을 재구성**  
+  - **데이터 구성:** 
+    - Train: 75장/카테고리  
+    - Validation: 25장/카테고리  
+    - Test: 25장/카테고리  
+    - (수동으로 Annotation 파일 제작)  
+  - **문제점:** 모델 학습 과정에서는 높은 정확도를 기록했으나, **절대적인 데이터 수 부족으로 인해 실제 성능이 저조**  
+
+- **EfficientNet-B0**
+  - **프로젝트 환경에서 카메라로 물체를 촬영하는 방식이 사용되었기 때문에, 객체 인식 모델이 아닌 이미지 분류 모델이 더 적합하다고 판단하여 전환**  
+  - EfficientDet-D0에서 사용한 데이터를 **증강(Augmentor 적용)** 하여 데이터셋을 확장  
+  - **데이터 구성:**  
+    - Train: 1000장/카테고리  
+    - Validation: 800장/카테고리  
+    - Test: 90장/카테고리  
+  - **결과:**  
+    - 모델 학습 중 가장 높은 정확도를 기록하여 최종 모델로 선정  
+    - 공모전 제출 당시 **정확도 100% 수렴**  
+
+### 2. 공모전 이후 진행한 연구 (EfficientNet-B0 성능 개선)
+- 공모전 당시의 데이터셋을 활용하되, **Test 데이터와 유사한 Train 및 Validation 데이터셋 재구성**  
+  - **빠른 진행을 위해 "썩은 과일" 데이터는 제외하고 정상적인 과일(사과, 바나나, 오렌지)만 포함**  
+- 모델 학습 1회 시행만에 **Test 데이터셋에서 성능이 25% → 76%로 향상**
 
 ---
 
-## 주요 성과
+## 개인 기여 (My Contribution)
 
----
+본 프로젝트에서 담당한 주요 역할은 다음과 같습니다.
 
-## 개인 기여
+### 1. 데이터 처리 및 증강
+- YOLOv5s, EfficientDet-D0, EfficientNet-B0 모델별 데이터 전처리 및 증강 수행  
+- Augmentor를 활용하여 **좌우 반전, 밝기 조정, 대비 변경** 등의 이미지 증강 적용  
+- EfficientNet-B0 모델의 학습을 위해 데이터셋을 **1,000장 이상 증강**  
+
+### 2. 모델 성능 분석 및 개선
+- **YOLOv5s → EfficientDet-D0 → EfficientNet-B0** 모델 변경 과정에서 각 모델의 성능을 분석  
+- 공모전 종료 후 EfficientNet-B0 모델의 성능을 개선하기 위해 **데이터 재구성** 수행  
+  - **공모전 당시 Test 데이터에서 25%의 성능을 보였으나, 개인 연구 진행 후 76%까지 개선**  
+
+### 3. 보고서 & 논문 작성
+- 2024 한이음 ICT 멘토링 공모전 보고서 및 [한국정보처리학회 논문](https://koreascience.kr/article/CFKO202433162499114.page) 작성  
+  - 프로젝트 개요 및 실험 결과 정리  
+  - EfficientNet-B0 성능 개선 과정 및 결과 정리
